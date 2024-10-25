@@ -1,4 +1,4 @@
-import { SingUpCard } from "@/features/auth/sing-up-card";
+import { SingUpCard } from "@/features/auth/components/sing-up-card";
 import React from "react";
 
 const SignUpPage = () => {
