@@ -1,7 +1,8 @@
+import { SingUpCard } from "@/features/auth/sing-up-card";
 import React from "react";
 
 const SignUpPage = () => {
-  return <div>SignUpPage</div>;
+  return <SingUpCard />;
 };
 
 export default SignUpPage;
