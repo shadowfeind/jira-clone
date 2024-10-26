@@ -23,16 +23,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-
-const signUpSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email(),
-  password: z.string().min(8, "Minimum 8 characters"),
-});
+import { registerSchema } from "@/features/auth/schemas";
+import { useRegister } from "../api/use-register";
 
 export const SingUpCard = () => {
+  const { mutate } = useRegister();
   const form = useForm({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -40,8 +37,8 @@ export const SingUpCard = () => {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof signUpSchema>) => {
-    console.log(values);
+  const handleSubmit = (values: z.infer<typeof registerSchema>) => {
+    mutate({ json: values });
   };
   return (
     <Card className="w-full h-full md:w-[487px] border-none shadow-none">
