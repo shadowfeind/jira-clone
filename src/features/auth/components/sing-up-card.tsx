@@ -27,7 +27,7 @@ import { registerSchema } from "@/features/auth/schemas";
 import { useRegister } from "../api/use-register";
 
 export const SingUpCard = () => {
-  const { mutate } = useRegister();
+  const { mutate, isPending } = useRegister();
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -117,7 +117,7 @@ export const SingUpCard = () => {
               size={"lg"}
               type="submit"
               className="w-full"
-              disabled={false}
+              disabled={isPending}
             >
               Sign Up
             </Button>
@@ -131,7 +131,7 @@ export const SingUpCard = () => {
         <Button
           size={"lg"}
           className="w-full"
-          disabled={false}
+          disabled={isPending}
           variant={"secondary"}
         >
           <FcGoogle className="mr-2 size-5" />
@@ -140,7 +140,7 @@ export const SingUpCard = () => {
         <Button
           size={"lg"}
           className="w-full"
-          disabled={false}
+          disabled={isPending}
           variant={"secondary"}
         >
           <FaGithub className="mr-2 size-5" />
