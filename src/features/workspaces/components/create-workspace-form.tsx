@@ -21,6 +21,7 @@ import { useCreateWorkspace } from "../api/use-create-workspace";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 type Props = {
   onCanel?: () => void;
@@ -29,6 +30,7 @@ type Props = {
 export const CreateWorkSpaceForm = ({ onCanel }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useCreateWorkspace();
+  const router = useRouter();
   const form = useForm<z.infer<typeof createWorkspaceSchema>>({
     defaultValues: {
       name: "",
@@ -51,7 +53,10 @@ export const CreateWorkSpaceForm = ({ onCanel }: Props) => {
     mutate(
       { form: finalValues },
       {
-        onSuccess: () => form.reset(),
+        onSuccess: ({ data }) => {
+          form.reset();
+          router.push(`/workspaces/${data.$id}`);
+        },
       }
     );
   };
