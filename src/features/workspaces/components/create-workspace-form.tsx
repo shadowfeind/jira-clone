@@ -22,6 +22,7 @@ import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type Props = {
   onCanel?: () => void;
@@ -152,6 +153,7 @@ export const CreateWorkSpaceForm = ({ onCanel }: Props) => {
                 disabled={isPending}
                 variant={"secondary"}
                 onClick={onCanel}
+                className={cn(!onCanel && "invisible")}
               >
                 Cancel
               </Button>
