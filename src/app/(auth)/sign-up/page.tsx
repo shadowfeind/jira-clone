@@ -1,4 +1,4 @@
-import { getCurrent } from "@/features/auth/actions";
+import { getCurrent } from "@/features/auth/queries";
 import { SingUpCard } from "@/features/auth/components/sing-up-card";
 import { redirect } from "next/navigation";
 import React from "react";
