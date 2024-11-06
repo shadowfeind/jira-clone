@@ -129,16 +129,35 @@ export const CreateWorkSpaceForm = ({ onCanel }: Props) => {
                           disabled={isPending}
                           onChange={handleImageChange}
                         />
-                        <Button
-                          type="button"
-                          disabled={isPending}
-                          variant={"teritary"}
-                          size={"xs"}
-                          className="w-fit mt-2"
-                          onClick={() => inputRef.current?.click()}
-                        >
-                          UPload Image
-                        </Button>
+
+                        {field.value ? (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"destructive"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => {
+                              field.onChange(null);
+                              if (inputRef.current) {
+                                inputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            Remove Image
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"teritary"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => inputRef.current?.click()}
+                          >
+                            Upload Image
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

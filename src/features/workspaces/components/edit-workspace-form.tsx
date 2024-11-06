@@ -17,13 +17,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCreateWorkspace } from "../api/use-create-workspace";
-import { ImageIcon } from "lucide-react";
+import { ArrowLeftIcon, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Workspace } from "../types";
+import { useUpdateWorkspace } from "../api/use-update-workspace";
 
 type Props = {
   onCanel?: () => void;
@@ -32,7 +32,7 @@ type Props = {
 
 export const EditWorkSpaceForm = ({ onCanel, initivalValues }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { mutate, isPending } = useCreateWorkspace();
+  const { mutate, isPending } = useUpdateWorkspace();
   const router = useRouter();
   const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
     defaultValues: {
@@ -52,7 +52,7 @@ export const EditWorkSpaceForm = ({ onCanel, initivalValues }: Props) => {
   const handleSubmit = (values: z.infer<typeof updateWorkspaceSchema>) => {
     const finalValues = {
       ...values,
-      image: values.image instanceof File ? values.image : undefined,
+      image: values.image instanceof File ? values.image : "",
     };
     mutate(
       { form: finalValues, param: { workspaceId: initivalValues.$id } },
@@ -67,7 +67,19 @@ export const EditWorkSpaceForm = ({ onCanel, initivalValues }: Props) => {
 
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
+      <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
+        <Button
+          size={"sm"}
+          variant={"secondary"}
+          onClick={
+            onCanel
+              ? onCanel
+              : () => router.push(`/workspaces/${initivalValues.$id}`)
+          }
+        >
+          {" "}
+          <ArrowLeftIcon className="size-4 mr-2" /> back{" "}
+        </Button>
         <CardTitle className="text-xl font-bold">
           {initivalValues.name}
         </CardTitle>
@@ -132,16 +144,34 @@ export const EditWorkSpaceForm = ({ onCanel, initivalValues }: Props) => {
                           disabled={isPending}
                           onChange={handleImageChange}
                         />
-                        <Button
-                          type="button"
-                          disabled={isPending}
-                          variant={"teritary"}
-                          size={"xs"}
-                          className="w-fit mt-2"
-                          onClick={() => inputRef.current?.click()}
-                        >
-                          UPload Image
-                        </Button>
+                        {field.value ? (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"destructive"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => {
+                              field.onChange(null);
+                              if (inputRef.current) {
+                                inputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            Remove Image
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"teritary"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => inputRef.current?.click()}
+                          >
+                            Upload Image
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -161,7 +191,7 @@ export const EditWorkSpaceForm = ({ onCanel, initivalValues }: Props) => {
                 Cancel
               </Button>
               <Button type="submit" size={"lg"} disabled={isPending}>
-                Create workspace
+                Save Changes
               </Button>
             </div>
           </form>
