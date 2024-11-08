@@ -18,7 +18,7 @@ export const useDeleteWorkspace = () => {
       const response = await client.api.workspaces[":workspaceId"]["$delete"]({
         param,
       });
-      if (!response.ok) throw new Error("Failed to create workspace");
+      if (!response.ok) throw new Error("Failed to delete workspace");
       return await response.json();
     },
     onSuccess: ({ data }) => {
