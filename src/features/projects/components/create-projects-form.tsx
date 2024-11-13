@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { useCreateProjects } from "../api/use-create-projects";
 import { createProjectsSchema } from "../schemas";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspaceId";
+import { useRouter } from "next/navigation";
 
 type Props = {
   onCanel?: () => void;
@@ -34,7 +35,7 @@ export const CreateProjectForm = ({ onCanel }: Props) => {
   const workspaceId = useWorkspaceId();
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useCreateProjects();
-  // const router = useRouter();
+  const router = useRouter();
   const form = useForm<z.infer<typeof createProjectsSchema>>({
     defaultValues: {
       name: "",
@@ -60,7 +61,7 @@ export const CreateProjectForm = ({ onCanel }: Props) => {
       {
         onSuccess: ({ data }) => {
           form.reset();
-          //TODO redirect to project screen
+          router.push(`/workspace/${workspaceId}/projects/${data.$id}`);
         },
       }
     );
