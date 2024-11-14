@@ -16,10 +16,10 @@ export async function createSessionClient() {
   client.setSession(session.value);
 
   return {
-    get account() {
+    get account(): Account {
       return new Account(client);
     },
-    get databases() {
+    get databases(): Databases {
       return new Databases(client);
     },
   };
@@ -32,10 +32,10 @@ export async function createAdminClient() {
     .setKey(process.env.NEXT_APPWRITE_KEY!);
 
   return {
-    get account() {
+    get account(): Account {
       return new Account(client);
     },
-    get users() {
+    get users(): Users {
       return new Users(client);
     },
   };
