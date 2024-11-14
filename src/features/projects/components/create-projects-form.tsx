@@ -182,7 +182,7 @@ export const CreateProjectForm = ({ onCanel }: Props) => {
                 Cancel
               </Button>
               <Button type="submit" size={"lg"} disabled={isPending}>
-                Create workspace
+                Create project
               </Button>
             </div>
           </form>

@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import { z } from "zod";
@@ -17,50 +16,55 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ImageIcon } from "lucide-react";
-import Image from "next/image";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 // import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspaceId";
 import { useRouter } from "next/navigation";
+import { useCreateTask } from "../api/use-create-task";
+import { createTaskSchema } from "../schemas";
+import DatePicker from "@/components/date-picker";
+import { MembersAvatar } from "@/features/members/component/members-avatar";
+import { TaskStatus } from "../types";
+import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 
 type Props = {
   onCanel?: () => void;
+  projectOptions: { id: string; name: string; imageUrl: string }[];
+  membersOptions: { id: string; name: string }[];
 };
 
-export const CreateTaskForm = ({ onCanel }: Props) => {
+export const CreateTaskForm = ({
+  onCanel,
+  projectOptions,
+  membersOptions,
+}: Props) => {
   const workspaceId = useWorkspaceId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { mutate, isPending } = useCreateProjects();
+  const { mutate, isPending } = useCreateTask();
   const router = useRouter();
-  const form = useForm<z.infer<typeof createProjectsSchema>>({
+  const form = useForm<z.infer<typeof createTaskSchema>>({
     defaultValues: {
-      name: "",
+      workspaceId,
+      status: "TODO",
     },
-    resolver: zodResolver(createProjectsSchema.omit({ workspaceId: true })),
+    resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("image", file);
-    }
-  };
-
-  const handleSubmit = (values: z.infer<typeof createProjectsSchema>) => {
-    const finalValues = {
-      ...values,
-      workspaceId,
-      image: values.image instanceof File ? values.image : "",
-    };
+  const handleSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
-      { form: finalValues },
+      { json: { ...values, workspaceId } },
       {
-        onSuccess: ({ data }) => {
+        onSuccess: () => {
           form.reset();
-          router.push(`/workspace/${workspaceId}/projects/${data.$id}`);
+          onCanel?.();
         },
       }
     );
@@ -69,9 +73,7 @@ export const CreateTaskForm = ({ onCanel }: Props) => {
   return (
     <Card className="w-full h-full border-none shadow-none">
       <CardHeader className="flex p-7">
-        <CardTitle className="text-xl font-bold">
-          Create a new project
-        </CardTitle>
+        <CardTitle className="text-xl font-bold">Create a new task</CardTitle>
       </CardHeader>
       <div className="px-7">
         <DottedSeperator />
@@ -85,9 +87,9 @@ export const CreateTaskForm = ({ onCanel }: Props) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project name</FormLabel>
+                    <FormLabel>Task name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter project name" {...field} />
+                      <Input placeholder="Enter task name" {...field} />
                     </FormControl>
 
                     <FormMessage />
@@ -96,75 +98,115 @@ export const CreateTaskForm = ({ onCanel }: Props) => {
               />
               <FormField
                 control={form.control}
-                name="image"
+                name="dueDate"
                 render={({ field }) => (
-                  <div className="flex flex-col gap-y-2">
-                    <div className="flex items-center gap-x-5">
-                      {field.value ? (
-                        <div className="size-[72px] relative rounded-md overflow-hidden">
-                          <Image
-                            src={
-                              field.value instanceof File
-                                ? URL.createObjectURL(field.value)
-                                : field.value
-                            }
-                            alt="image"
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <Avatar className="size-[72px]">
-                          <AvatarFallback>
-                            <ImageIcon className="size-[36px] text-neutral-400" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div className="flex flex-col">
-                        <p className="text-sm">Workspace Icon</p>
-                        <p className="text-sm text-muted-foreground">
-                          JPG, JPEG, PNG or SVG. Max 1MB{" "}
-                        </p>
-                        <input
-                          className="hidden"
-                          accept=".jpg, .png, .jpeg, .svg"
-                          type="file"
-                          ref={inputRef}
-                          disabled={isPending}
-                          onChange={handleImageChange}
-                        />
-
-                        {field.value ? (
-                          <Button
-                            type="button"
-                            disabled={isPending}
-                            variant={"destructive"}
-                            size={"xs"}
-                            className="w-fit mt-2"
-                            onClick={() => {
-                              field.onChange(null);
-                              if (inputRef.current) {
-                                inputRef.current.value = "";
-                              }
-                            }}
-                          >
-                            Remove Image
-                          </Button>
-                        ) : (
-                          <Button
-                            type="button"
-                            disabled={isPending}
-                            variant={"teritary"}
-                            size={"xs"}
-                            className="w-fit mt-2"
-                            onClick={() => inputRef.current?.click()}
-                          >
-                            Upload Image
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <FormItem>
+                    <FormLabel>Due Date</FormLabel>
+                    <FormControl>
+                      <DatePicker {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="assigneeId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Assignee</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an assignee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {membersOptions.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            <div className="flex justify-between items-center gap-x-2">
+                              <MembersAvatar
+                                className="size-6"
+                                name={member.name}
+                              />
+                              {member.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={TaskStatus.BACKLOG}>
+                          Backlog
+                        </SelectItem>
+                        <SelectItem value={TaskStatus.IN_PROGRESS}>
+                          In Progress
+                        </SelectItem>
+                        <SelectItem value={TaskStatus.IN_REVIEW}>
+                          In Review
+                        </SelectItem>
+                        <SelectItem value={TaskStatus.TODO}>Todo</SelectItem>
+                        <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Project</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select project" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {projectOptions.map((project) => (
+                          <SelectItem key={project.id} value={project.id}>
+                            <div className="flex justify-between items-center gap-x-2">
+                              <ProjectAvatar
+                                className="size-6"
+                                name={project.name}
+                                image={project.imageUrl}
+                              />
+                              {project.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
@@ -181,7 +223,7 @@ export const CreateTaskForm = ({ onCanel }: Props) => {
                 Cancel
               </Button>
               <Button type="submit" size={"lg"} disabled={isPending}>
-                Create workspace
+                Create Task
               </Button>
             </div>
           </form>

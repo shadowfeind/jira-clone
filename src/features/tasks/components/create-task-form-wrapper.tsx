@@ -4,6 +4,7 @@ import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspaceId";
 import { Loader } from "lucide-react";
 import React from "react";
+import { CreateTaskForm } from "./create-task-form";
 
 type Props = {
   onCancel: () => void;
@@ -19,12 +20,13 @@ export const CreateTaskFormWrapper = ({ onCancel }: Props) => {
   });
 
   const projectOptions = projects?.documents.map((project) => ({
-    label: project.name,
-    value: project.$id,
+    id: project.$id,
+    name: project.name,
+    imageUrl: project.imageUrl,
   }));
   const membersOptions = members?.documents.map((member) => ({
-    label: member.name,
-    value: member.$id,
+    id: member.$id,
+    name: member.name,
   }));
   const isloadin = projectLoading || membersLoading;
 
@@ -37,5 +39,13 @@ export const CreateTaskFormWrapper = ({ onCancel }: Props) => {
       </Card>
     );
   }
-  return <div>{JSON.stringify({ projectOptions, membersOptions })}</div>;
+  return (
+    <div>
+      <CreateTaskForm
+        onCanel={onCancel}
+        projectOptions={projectOptions ?? []}
+        membersOptions={membersOptions ?? []}
+      />
+    </div>
+  );
 };
