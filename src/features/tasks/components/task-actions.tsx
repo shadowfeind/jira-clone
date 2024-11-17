@@ -10,6 +10,7 @@ import { useDeleteTask } from "../api/use-delete-tas";
 import { useConfirm } from "@/hooks/use-Confirm";
 import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspaceId";
+import { useEditTaskModal } from "../hooks/use-edit-task-moda";
 
 type Props = {
   id: string;
@@ -26,6 +27,8 @@ export const TaskActions = ({ id, projectId, children }: Props) => {
     "This action cannot be undone",
     "destructive"
   );
+
+  const { open } = useEditTaskModal();
 
   const handleDelete = async () => {
     console.log("working");
@@ -53,7 +56,10 @@ export const TaskActions = ({ id, projectId, children }: Props) => {
             <ExternalLinkIcon className="size-4" />
             <span>View Task</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {}} className="font-medium p-[10px]">
+          <DropdownMenuItem
+            onClick={() => open(id)}
+            className="font-medium p-[10px]"
+          >
             <PencilIcon className="size-4" />
             <span>Edit Task</span>
           </DropdownMenuItem>
